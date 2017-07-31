@@ -1,0 +1,76 @@
+install.packages('tidyr')
+install.packages('magrittr')
+install.packages('stringr')
+install.packages('plyr')
+install.packages('dplyr')
+install.packages('networkD3')
+install.packages('reshape2')
+
+setwd("/Users/astephan/Desktop/ER")
+library(tidyr)
+library(magrittr)
+library(stringr)
+library(plyr)
+library(dplyr)
+library(networkD3)
+library(reshape2)
+options(digits=4)
+
+#freq <- read.csv('ER_Presse-format-ids-clean.csv', header = TRUE, sep = ",")$keywords %>%
+freq <- read.csv('ER_Revue_presse-format-ids-clean.csv', header = TRUE, sep = ",")$keywords %>%
+
+str_split(";") %>%
+unlist %>%
+table %>%
+data.frame %>%
+arrange(-Freq)
+
+#e <- read.csv('ER_Presse-format-ids-clean.csv', header = TRUE, sep = ",")$keywords %>%
+e <- read.csv('ER_Revue_presse-format-ids-clean.csv', header = TRUE, sep = ",")$keywords %>%
+  str_split(";") %>%
+  lapply(function(x) {
+    expand.grid(x, x, w = 1 / length(x), stringsAsFactors = FALSE)
+  }) %>%
+  bind_rows
+
+e <- apply(e[, -3], 1, str_sort) %>%
+  t %>%
+  data.frame(stringsAsFactors = FALSE) %>%
+  mutate(w = e$w)
+
+e <- group_by(e, X1, X2) %>%
+  summarise(w = sum(w)) %>%
+  filter(X1 != X2)
+
+names(e) <- c("Mot1","Mot2","Poids")
+names(freq) <- c("Mot","Frequence")
+
+e$Poids <- e$Poids/max(e$Poids)
+
+#La Matrice du top 100
+e100 <- e[order(-e$Poids),]
+e100 <- head(e100,20)
+
+write.table(e, file='liens.csv', quote = FALSE, sep=',', col.names = TRUE,
+            row.names = FALSE)
+
+write.table(e100, file='liens100.csv', quote = FALSE, sep=',', col.names = TRUE,
+            row.names = FALSE)
+
+write.table(freq, file='freq.csv', quote = FALSE, sep=',', col.names = TRUE,
+            row.names = FALSE)
+
+#Réseau entre les mots clefs
+source <- e100$Mot1
+cible <- e100$Mot2
+networkData <- data.frame(source, cible)
+simpleNetwork(networkData,zoom=TRUE)
+
+#Matrice clustering
+matriceCluster <- acast(e100, Mot1~Mot2, value.var="Poids")
+#On remplace les NA par des O sinon hclust ne fonctionne pas
+matriceCluster[is.na(matriceCluster)] <- 0
+plot(hclust(dist(abs(cor(na.omit(matriceCluster))))))
+
+write.table(matriceCluster, file='matrice', quote = FALSE, sep=',', col.names = TRUE,
+            row.names = TRUE)
