@@ -1,119 +1,74 @@
-//d3.csv("freq.csv", function(d) {
 d3.csv("liens.csv", function(d) {
         return {
             mot1: d.Mot1,
             mot2: d.Mot2,
             poids: +d.Poids
-            //mot : d.Mot,
-            //freq: +d.Frequence
         };
-    }, function(data) {
+    }, function(dataInit) {
 
-        let largeurCellule = 22;
-
-        var marges = {
-            top: 100,
-            right: 100,
-            bottom: 100,
-            left: 100
-        };
-
-        //On classe la base de données par poids des liens entre les mots
-        data.sort(function(a, b){
+        //Avant toute chose, on trie la base de données
+        dataInit.sort(function(a, b){
             return b["poids"]-a["poids"];
         });
 
-        //Création du set de tous les mots
-        /*let setMotsFull = new Set();
-        data.forEach(function(d) {
-            setMotsFull.add(d.mot1)
-            setMotsFull.add(d.mot2)
-        });
+        //Initialisation du tableau de données et de mots qu'on va utiliser
+        let data = [];
+        let motsUniquesInit = [];
+        let motsUniques = [];
+        let largeurCellule = 20;
 
-        //Création de la liste de tous les mots
-        let listeMotsFull = Array.from(setMotsFull);
+        let marges = {
+            top: 30,
+            right: 30,
+            bottom: 30,
+            left: 30
+        };
 
-        //On classe par ordre alphabétique (localeCompare est utile pour les accents)
-        listeMotsFull.sort((a, b) => a.localeCompare(b));*/
-
-
-        var width2 = window.innerWidth - marges.left - marges.right;
-        var height2 = window.innerHeight - marges.top - marges.bottom;
-
-        //Création du canevas, qui a une largeur de 100
-        var canevas = d3.select("body").append("svg")
-            .attr("width", largeurCellule*100 + marges.left + marges.right)
-            .attr("height", largeurCellule*100 + marges.top + marges.bottom)
+        //Initialisation du canevas
+        let canevas = d3.select("body").append("svg")
+            .attr("class","svg")
+            .attr("width", largeurCellule * 75 + marges.left + marges.right)
+            .attr("height", largeurCellule * 75 + marges.left + marges.right)
             .append("g")
             .attr("transform", "translate(" + marges.left + "," + marges.top + ")");
 
-        /*var canevas2 = d3.select("body").append("svg")
-            .attr("width", width2 + marges.left + marges.right)
-            .attr("height", height2 + marges.top + marges.bottom)
-            .append("g")
-            .attr("transform", "translate(" + marges.left + "," + marges.top + ")")
-            .style("background-color", "lightgray");*/
+        //Une fonction pour choper les x paires les plus fréquentes
+        function selectData(seuil){
 
-
-        //Initialisation du tableau qui sert dans la fonction graphe
-        let dataSeuil = [];
-        //Fonction qui ne prend qu'une partie du dataset, et qui le dessine
-        function liste(seuil){
-            console.log(seuil);
-            //On vide le tableau avant de recommencer, histoire que les vieilles valeurs ne restent pas en mémoire
-            dataSeuil.splice(0);
-            //Et on le remplit avec les valeurs jusqu'au nouveau seuil
+            //On vide le tableau de données
+            data.splice(0);
+            //Et on le remplit de nouveau
             for (var i = 0; i < seuil; i++) {
-                dataSeuil[i] = data[i];
-
+                data[i] = dataInit[i];
             }
-            graphe(dataSeuil);
         }
 
-        //Fonction pour dessiner la matrice des occurrences les plus fréquentes (en fonction du seuil)
-        function graphe(dataSeuil) {
-            //Création du set des mots dont on a besoin
-            var setMots = new Set();
-            dataSeuil.forEach(function(d) {
-                setMots.add(d.mot1)
-                setMots.add(d.mot2)
+        //Une fonction pour choper les mots uniques associés aux x paires les plus fréquentes
+        function selectMots(seuil){
+            selectData(seuil);
+            //On chope la liste de tous les mots uniques
+            var setMotsUniques = new Set();
+            data.forEach(function(d){
+                setMotsUniques.add(d.mot1)
+                setMotsUniques.add(d.mot2)
             });
-            console.log(setMots);
+            //Et on en fait un tableau
+            motsUniques = Array.from(setMotsUniques);
+            //Avant de la classer par ordre alphabétique
+            motsUniques.sort((a, b) => a.localeCompare(b));
+            return motsUniques;
 
+        }
 
-            //Création de la liste des mots inclus dans la sous base de données
-            var listeMots = Array.from(setMots);
-            /*Note pour le futur Arnaud : C'est normal s'il n'y a pas autant de mots que le seuil. Si on
-            met le seuil à 20 il n'y a que 16 mots, parce qu'avec 16 mots on fait les 20 paires les plus
-            fréquentes. Le problème ne vient pas de là.
-            */
-            console.log(listeMots);
+        //On initialise les axes
+        let domain = selectMots(10);
+        let echelleX = d3.scaleBand()
+            .domain(domain)
+            .range([0 , domain.length * largeurCellule])
+            .padding(0.1);
 
-            //On classe par ordre
-            listeMots.sort((a, b) => a.localeCompare(b));
+        let axeX = d3.axisTop(echelleX);
 
-            var width = listeMots.length * (largeurCellule);
-            var height = listeMots.length * (largeurCellule);
-
-            //Echelle des X
-            var echelleX = d3.scaleBand()
-                .domain(listeMots)
-                .range([0, listeMots.length * largeurCellule])
-                .padding(0.1);
-
-            //Echelle des Y
-            var echelleY = d3.scaleBand()
-                .domain(listeMots)
-                .range([0, listeMots.length * largeurCellule])
-                .padding(0.1);
-
-            //Axe X
-            var axeX = d3.axisTop(echelleX);
-
-            //Axe Y
-            var axeY = d3.axisLeft(echelleY);
-
-            //Ajout de l'axe x
             canevas.append("g")
                 .attr("class", "axeX")
                 .call(axeX)
@@ -124,19 +79,53 @@ d3.csv("liens.csv", function(d) {
                 .attr("dy", ".5em")
                 .attr("transform", "rotate(-65)");
 
-            //Ajout de l'axe y
+        let echelleY = d3.scaleBand()
+            .domain(domain)
+            .range([0 , domain.length * largeurCellule])
+            .padding(0.1);
+
+        let axeY = d3.axisLeft(echelleY);
+
             canevas.append("g")
                 .attr("class", "axeY")
                 .call(axeY)
                 .selectAll('text')
                 .attr('font-weight', 'normal');
 
-            //Création du tableau quantites
-            let quantites = dataSeuil.map(d => d.poids);
+        //Fonction pour updater les axes
+        function updateAxis(newDomain){
+
+            echelleX.domain(newDomain).range([0 , newDomain.length * largeurCellule])
+            canevas.select(".axeX")
+                .transition().duration(2000)
+                .call(axeX)
+                .selectAll('text')
+                .attr('font-weight', 'normal')
+                .style("text-anchor", "start")
+                .attr("dx", ".8em")
+                .attr("dy", ".5em")
+                .attr("transform", "rotate(-65)");
+
+            echelleY.domain(newDomain).range([0 , newDomain.length * largeurCellule])
+            canevas.select(".axeY")
+                .transition().duration(2000)
+                .call(axeY)
+        }
+
+        function graphe(seuil){
+            //En lançant selectMots, on chope d'un coup le subset dont on a besoin et les mots associés
+            selectMots(seuil);
+            //On update les axes
+            updateAxis(motsUniques);
+            console.log(data)
+            console.log(motsUniques);
+
+            //Création du tableau de quantites
+            let quantites = data.map(d => d.poids);
             //On trie les quantités pour que les quantiles fonctionnent, sinon ça fait n'importe quoi
             quantites = quantites.sort();
 
-            //Calcul des quantiles
+            //Calcul des quantiles, pour l'échelle de couleurs
             let q1 = d3.quantile(quantites, 0.15);
             let q2 = d3.quantile(quantites, 0.30);
             let q3 = d3.quantile(quantites, 0.45);
@@ -155,7 +144,7 @@ d3.csv("liens.csv", function(d) {
                 .attr("class", "tooltip")
                 .style("opacity", 0);
 
-            var g = canevas.selectAll("rect").data(dataSeuil);
+            var g = canevas.selectAll("rect").data(data);
             var gEnter = g.enter().append("g");
 
             //Les cellules du triangle en bas à gauche
@@ -168,7 +157,7 @@ d3.csv("liens.csv", function(d) {
                 .attr("fill", d => echelleCouleur(d.poids));
 
             //Celles qui se déplacent
-            canevas.selectAll(".cell").data(dataSeuil).transition()
+            canevas.selectAll(".cell").data(data).transition()
                 .duration(2000)
                 .attr("width", largeurCellule)
                 .attr("height", largeurCellule)
@@ -177,11 +166,11 @@ d3.csv("liens.csv", function(d) {
                 .attr("fill", d => echelleCouleur(d.poids));
 
             //Celles qui s'en vont
-            canevas.selectAll(".cell").data(dataSeuil).exit()
+            canevas.selectAll(".cell").data(data).exit()
                 .remove();
 
             //Tooltip
-            canevas.selectAll(".cell").data(dataSeuil)
+            canevas.selectAll(".cell").data(data)
                 .on("mouseover", function(d) {
                     div.transition()
                         .duration(200)
@@ -196,9 +185,8 @@ d3.csv("liens.csv", function(d) {
                         .style("opacity", 0);
                 });
 
-
             //Les cellules du triangle en haut à droite
-            var cells2 = gEnter.append("rect")
+            /*var cells2 = gEnter.append("rect")
                 .attr("class", "cell2")
                 .attr("width", largeurCellule)
                 .attr("height", largeurCellule)
@@ -207,7 +195,7 @@ d3.csv("liens.csv", function(d) {
                 .attr("fill", d => echelleCouleur(d.poids));
 
             //Celles qui se déplacent
-            canevas.selectAll(".cell2").data(dataSeuil).transition()
+            canevas.selectAll(".cell2").data(data).transition()
                 .duration(2000)
                 .attr("width", largeurCellule)
                 .attr("height", largeurCellule)
@@ -216,11 +204,11 @@ d3.csv("liens.csv", function(d) {
                 .attr("fill", d => echelleCouleur(d.poids));
 
             //Celles qui s'en vont
-            canevas.selectAll(".cell2").data(dataSeuil).exit()
-                .remove()
+            canevas.selectAll(".cell2").data(data).exit()
+                   .remove()
 
             //Tooltip
-            canevas.selectAll(".cell2").data(dataSeuil)
+            canevas.selectAll(".cell2").data(data)
                 .on("mouseover", function(d) {
                     div.transition()
                         .duration(200)
@@ -233,80 +221,54 @@ d3.csv("liens.csv", function(d) {
                     div.transition()
                         .duration(500)
                         .style("opacity", 0);
-                });
+                });*/
 
+            //Ajout de la légende
             var legende = ["0-15", "15-30", "30-45", "45-60", "60-75", "75-90", "90-100"];
 
             var legendeCell = canevas.selectAll(".legende").data(legende);
+            var cellPosX = (motsUniques.length * largeurCellule);
+            var cellPosY = cellPosX;
 
             legendeCell.enter()
                 .append("g")
                 .append("rect")
                 .attr("class", "legende")
-                .attr("width", width/7)
+                .attr("width", cellPosX/7)
                 .attr("height", largeurCellule / 2)
-                .attr("x", (d, i) => i * (width/7))
-                .attr("y", height + 10)
+                .attr("x", (d, i) => i * (cellPosX/7))
+                .attr("y", cellPosY + 10)
                 .attr("fill", ((d, i) => couleurs[i]));
 
-            canevas.selectAll(".legende").data(dataSeuil).transition()
+            canevas.selectAll(".legende").data(data).transition()
                 .duration(2000)
-                .attr("width", width/7)
-                .attr("x", (d, i) => i * (width/7))
-                .attr("y", height + 10)
+                .attr("width", cellPosX/7)
+                .attr("x", (d, i) => i * (cellPosY/7))
+                .attr("y", cellPosY + 10)
                 .attr("fill", ((d, i) => couleurs[i]));
 
             legendeCell.enter()
                 .append("text")
                 .attr("class","mono")
                 .text((d,i)=>d+"%")
-                .attr("x", (d, i) => 5+ (i * (width/7)))
-                .attr("y", height + largeurCellule + 10);
+                .attr("x", (d, i) => 5+ (i * (cellPosX/7)))
+                .attr("y", cellPosY + largeurCellule + 10);
 
-            canevas.selectAll(".mono").data(dataSeuil).transition()
+            canevas.selectAll(".mono").data(data).transition()
                 .duration(2000)
-                .attr("x", (d, i) => 5+ (i * (width/7)))
-                .attr("y", height + largeurCellule + 10);
-            //fin de la fonction graphe
+                .attr("x", (d, i) => 5+ (i * (cellPosX/7)))
+                .attr("y", cellPosY + largeurCellule + 10);
+
         }
 
-        liste(25);
-        d3.select("#top15").on("click", function(){liste(10)});
-        d3.select("#top30").on("click", function(){liste(20)});
-        d3.select("#top50").on("click", function(){liste(100)});
-        /*
-        function graphe2() {
-
-            var echelleY = d3.scaleLinear()
-                .domain([0, d3.max(data, d => d.freq)])
-                .range([height, 0]);
-
-            var barres = canevas2.selectAll(".barre").data(data);
-
-            barres.enter().append("g")
-                .append("rect")
-                .attr("class", "barre")
-                .attr("x", (d, i) => i * 5)
-                .attr("y", d => echelleY(d.freq))
-                .attr("width", 4)
-                .attr("height", d => height - echelleY(d.freq))
-                .attr("fill", "steelblue")
-                .on("mouseover", function(d) {
-                    d3.select("#texte")
-                        .text(d.mot + " apparaît " + d.freq + " fois dans le corpus.");
-                });
-
-            canevas2.append("g")
-                .attr("class", "infobulle")
-                .attr("transform", "translate(50, 5)")
-                .append("text")
-                .attr("id", "texte");
-            //fin de la fonction graphe2
-        }
-    
-        graphe2();
-        */
-    }
+        d3.select("#top15").on("click", function(){graphe(10)});
+        d3.select("#top30").on("click", function(){graphe(20)});
+        d3.select("#top50").on("click", function(){graphe(30)});
 
 
-);
+
+
+
+
+
+    });
