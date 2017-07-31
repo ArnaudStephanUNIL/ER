@@ -18,31 +18,27 @@ d3.csv("liens100.csv", function(d) {
             left: 100
         };
 
-        let setMots = new Set();
-        data.forEach(function(d) {
-            setMots.add(d.mot1)
-            setMots.add(d.mot2)
+        //On classe la base de données par poids des liens entre les mots
+        data.sort(function(a, b){
+            return b["poids"]-a["poids"];
         });
 
-        let listeMots = Array.from(setMots);
-        //On remplace voxnr par Voxnr
-        //Attention ça ne marche pas, vu que dans la base de données ça reste voxnr et non Voxnr. A check plus tard
-        //listeMots = listeMots.map(s => s.replace(/voxnr/g, "Voxnr"));
-        //On classe par ordre alphabétique (localeCompare est utile pour les accents)
-        listeMots.sort((a, b) => a.localeCompare(b));
+        //Création du set de tous les mots
+        let setMotsFull = new Set();
+        data.forEach(function(d) {
+            setMotsFull.add(d.mot1)
+            setMotsFull.add(d.mot2)
+        });
 
-        var width = listeMots.length * (largeurCellule);
-        var height = listeMots.length * (largeurCellule);
+        //Création de la liste de tous les mots
+        let listeMotsFull = Array.from(setMotsFull);
+
+        //On classe par ordre alphabétique (localeCompare est utile pour les accents)
+        listeMotsFull.sort((a, b) => a.localeCompare(b));
+
+
         var width2 = window.innerWidth - marges.left - marges.right;
         var height2 = window.innerHeight - marges.top - marges.bottom;
-
-        var canevas = d3.select("body").append("svg")
-            .attr("width", width + marges.left + marges.right)
-            .attr("height", height + marges.top + marges.bottom)
-            .append("g")
-            .attr("transform", "translate(" + marges.left + "," + marges.top + ")")
-            .style("background-color", "lightgray");
-
         /*var canevas2 = d3.select("body").append("svg")
             .attr("width", width2 + marges.left + marges.right)
             .attr("height", height2 + marges.top + marges.bottom)
@@ -50,7 +46,47 @@ d3.csv("liens100.csv", function(d) {
             .attr("transform", "translate(" + marges.left + "," + marges.top + ")")
             .style("background-color", "lightgray");*/
 
-        function graphe() {
+        let dataSeuil = [];
+
+        function liste(seuil){
+            for (var i = 0; i < seuil; i++) {
+                dataSeuil[i] = data[i];
+
+            }
+            return dataSeuil;
+        }
+
+        liste(20);
+        console.log(dataSeuil);
+
+        function graphe(dataSeuil) {
+
+            //Création du set des mots dont on a besoin
+            let setMots = new Set();
+
+            dataSeuil.forEach(function(d) {
+                setMots.add(d.mot1)
+                setMots.add(d.mot2)
+            });
+
+            //Création de la liste des mots inclus dans la sous base de données
+            let listeMots = Array.from(setMots);
+
+            //On classe par ordre
+            listeMots.sort((a, b) => a.localeCompare(b));
+
+
+            //Création du canevas
+            var width = listeMots.length * (largeurCellule);
+            var height = listeMots.length * (largeurCellule);
+
+            var canevas = d3.select("body").append("svg")
+                .attr("width", width + marges.left + marges.right)
+                .attr("height", height + marges.top + marges.bottom)
+                .append("g")
+                .attr("transform", "translate(" + marges.left + "," + marges.top + ")")
+                .style("background-color", "lightgray");
+
             //Echelle des X
             var echelleX = d3.scaleBand()
                 .domain(listeMots)
@@ -88,7 +124,7 @@ d3.csv("liens100.csv", function(d) {
                 .attr('font-weight', 'normal');
 
             //Création du tableau quantites
-            let quantites = data.map(d => d.poids);
+            let quantites = dataSeuil.map(d => d.poids);
             //On trie les quantités pour que les quantiles fonctionnent, sinon ça fait n'importe quoi
             quantites = quantites.sort();
 
@@ -111,7 +147,7 @@ d3.csv("liens100.csv", function(d) {
                 .attr("class", "tooltip")
                 .style("opacity", 0);
 
-            var g = canevas.selectAll("rect").data(data);
+            var g = canevas.selectAll("rect").data(dataSeuil);
             var gEnter = g.enter().append("g");
 
             //Les cellules du triangle en bas à gauche
@@ -184,7 +220,8 @@ d3.csv("liens100.csv", function(d) {
             //fin de la fonction graphe
         }
 
-        graphe();
+        graphe(dataSeuil);
+
         /*
         function graphe2() {
 

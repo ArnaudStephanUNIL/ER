@@ -49,7 +49,7 @@ e$Poids <- e$Poids/max(e$Poids)
 
 #La Matrice du top 100
 e100 <- e[order(-e$Poids),]
-e100 <- head(e100,20)
+e100 <- head(e100,10)
 
 write.table(e, file='liens.csv', quote = FALSE, sep=',', col.names = TRUE,
             row.names = FALSE)
@@ -72,5 +72,5 @@ matriceCluster <- acast(e100, Mot1~Mot2, value.var="Poids")
 matriceCluster[is.na(matriceCluster)] <- 0
 plot(hclust(dist(abs(cor(na.omit(matriceCluster))))))
 
-write.table(matriceCluster, file='matrice', quote = FALSE, sep=',', col.names = TRUE,
+write.table(matriceCluster, file='matrice.csv', quote = FALSE, sep=',', col.names = TRUE,
             row.names = TRUE)
