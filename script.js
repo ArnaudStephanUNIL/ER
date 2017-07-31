@@ -1,5 +1,5 @@
 //d3.csv("freq.csv", function(d) {
-d3.csv("liens100.csv", function(d) {
+d3.csv("liens.csv", function(d) {
         return {
             mot1: d.Mot1,
             mot2: d.Mot2,
@@ -48,22 +48,21 @@ d3.csv("liens100.csv", function(d) {
 
         let dataSeuil = [];
 
+        //Fonction qui ne prend qu'une partie du dataset, et qui le dessine
         function liste(seuil){
             for (var i = 0; i < seuil; i++) {
                 dataSeuil[i] = data[i];
 
             }
-            return dataSeuil;
+            graphe(dataSeuil);
         }
 
-        liste(20);
-        console.log(dataSeuil);
-
+        //Fonction pour dessiner la matrice des occurrences les plus fréquentes (en fonction du seuil)
         function graphe(dataSeuil) {
 
             //Création du set des mots dont on a besoin
             let setMots = new Set();
-
+            console.log(dataSeuil);
             dataSeuil.forEach(function(d) {
                 setMots.add(d.mot1)
                 setMots.add(d.mot2)
@@ -220,7 +219,10 @@ d3.csv("liens100.csv", function(d) {
             //fin de la fonction graphe
         }
 
-        graphe(dataSeuil);
+        liste(5);
+
+        /*d3.select("#topcinquante")
+            .on("click",liste(50));*/
 
         /*
         function graphe2() {
