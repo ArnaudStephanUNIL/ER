@@ -42,11 +42,11 @@
 			font-family: Consolas, courier;
 		}
 
-		.cell{
+		.cell1{
   			stroke : black;
   			stroke-width: 0.3px;
 		}
-		.cell:hover{
+		.cell1:hover{
   			stroke-width : 1px; 
 		}
 
