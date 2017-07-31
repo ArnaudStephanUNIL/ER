@@ -156,7 +156,23 @@ d3.csv("liens.csv", function(d) {
                 .attr("height", largeurCellule)
                 .attr("y", d => echelleY(d.mot2))
                 .attr("x", d => echelleX(d.mot1))
-                .attr("fill", d => echelleCouleur(d.poids))
+                .attr("fill", d => echelleCouleur(d.poids));
+
+            //Celles qui se déplacent
+            canevas.selectAll(".cell").data(dataSeuil).transition()
+                .duration(200)
+                .attr("width", largeurCellule)
+                .attr("height", largeurCellule)
+                .attr("y", d => echelleY(d.mot2))
+                .attr("x", d => echelleX(d.mot1))
+                .attr("fill", d => echelleCouleur(d.poids));
+
+            //Celles qui s'en vont
+            canevas.selectAll(".cell").data(dataSeuil).exit()
+                .remove();
+
+            //Tooltip
+            canevas.selectAll(".cell").data(dataSeuil)
                 .on("mouseover", function(d) {
                     div.transition()
                         .duration(200)
@@ -170,9 +186,7 @@ d3.csv("liens.csv", function(d) {
                         .duration(500)
                         .style("opacity", 0);
                 });
-            /*.on("mouseover", function(d) {
-                console.log(d3.select(this).property('id'))
-            });*/
+
 
             //Les cellules du triangle en haut à droite
             var cells2 = gEnter.append("rect")
@@ -181,7 +195,23 @@ d3.csv("liens.csv", function(d) {
                 .attr("height", largeurCellule)
                 .attr("y", d => echelleY(d.mot1))
                 .attr("x", d => echelleX(d.mot2))
-                .attr("fill", d => echelleCouleur(d.poids))
+                .attr("fill", d => echelleCouleur(d.poids));
+
+            //Celles qui se déplacent
+            canevas.selectAll(".cell2").data(dataSeuil).transition()
+                .duration(200)
+                .attr("width", largeurCellule)
+                .attr("height", largeurCellule)
+                .attr("y", d => echelleY(d.mot1))
+                .attr("x", d => echelleX(d.mot2))
+                .attr("fill", d => echelleCouleur(d.poids));
+
+            //Celles qui s'en vont
+            canevas.selectAll(".cell2").data(dataSeuil).exit()
+                .remove()
+
+            //Tooltip
+            canevas.selectAll(".cell2").data(dataSeuil)
                 .on("mouseover", function(d) {
                     div.transition()
                         .duration(200)
@@ -219,10 +249,10 @@ d3.csv("liens.csv", function(d) {
             //fin de la fonction graphe
         }
 
-        liste(5);
+        liste(15);
 
-        /*d3.select("#topcinquante")
-            .on("click",liste(50));*/
+        d3.select("#topcinquante")
+            .on("click",liste(50));
 
         /*
         function graphe2() {
