@@ -39,6 +39,13 @@ d3.csv("liens.csv", function(d) {
 
         var width2 = window.innerWidth - marges.left - marges.right;
         var height2 = window.innerHeight - marges.top - marges.bottom;
+
+        var canevas = d3.select("body").append("svg")
+            .attr("width", largeurCellule*50 + marges.left + marges.right)
+            .attr("height", largeurCellule*50 + marges.top + marges.bottom)
+            .append("g")
+            .attr("transform", "translate(" + marges.left + "," + marges.top + ")");
+
         /*var canevas2 = d3.select("body").append("svg")
             .attr("width", width2 + marges.left + marges.right)
             .attr("height", height2 + marges.top + marges.bottom)
@@ -46,10 +53,14 @@ d3.csv("liens.csv", function(d) {
             .attr("transform", "translate(" + marges.left + "," + marges.top + ")")
             .style("background-color", "lightgray");*/
 
-        let dataSeuil = [];
 
+        //Initialisation du tableau qui sert dans la fonction graphe
+        let dataSeuil = [];
         //Fonction qui ne prend qu'une partie du dataset, et qui le dessine
         function liste(seuil){
+            //On vide le tableau avant de recommencer, histoire que les vieilles valeurs ne restent pas en mémoire
+            dataSeuil.splice(0);
+            //Et on le remplit avec les valeurs jusqu'au nouveau seuil
             for (var i = 0; i < seuil; i++) {
                 dataSeuil[i] = data[i];
 
@@ -62,7 +73,6 @@ d3.csv("liens.csv", function(d) {
 
             //Création du set des mots dont on a besoin
             let setMots = new Set();
-            console.log(dataSeuil);
             dataSeuil.forEach(function(d) {
                 setMots.add(d.mot1)
                 setMots.add(d.mot2)
@@ -74,17 +84,9 @@ d3.csv("liens.csv", function(d) {
             //On classe par ordre
             listeMots.sort((a, b) => a.localeCompare(b));
 
-
             //Création du canevas
             var width = listeMots.length * (largeurCellule);
             var height = listeMots.length * (largeurCellule);
-
-            var canevas = d3.select("body").append("svg")
-                .attr("width", width + marges.left + marges.right)
-                .attr("height", height + marges.top + marges.bottom)
-                .append("g")
-                .attr("transform", "translate(" + marges.left + "," + marges.top + ")")
-                .style("background-color", "lightgray");
 
             //Echelle des X
             var echelleX = d3.scaleBand()
@@ -234,9 +236,16 @@ d3.csv("liens.csv", function(d) {
                 .append("g")
                 .append("rect")
                 .attr("class", "legende")
-                .attr("width", largeurCellule+30)
+                .attr("width", width/7)
                 .attr("height", largeurCellule / 2)
-                .attr("x", (d, i) => i * (largeurCellule+30))
+                .attr("x", (d, i) => i * (width/7))
+                .attr("y", height + 10)
+                .attr("fill", ((d, i) => couleurs[i]));
+
+            canevas.selectAll(".legende").data(dataSeuil).transition()
+                .duration(200)
+                .attr("width", width/7)
+                .attr("x", (d, i) => i * (width/7))
                 .attr("y", height + 10)
                 .attr("fill", ((d, i) => couleurs[i]));
 
@@ -244,15 +253,20 @@ d3.csv("liens.csv", function(d) {
                 .append("text")
                 .attr("class","mono")
                 .text((d,i)=>d+"%")
-                .attr("x", (d, i) => 5+ (i * (largeurCellule+30)))
+                .attr("x", (d, i) => 5+ (i * (width/7)))
+                .attr("y", height + largeurCellule + 10);
+
+            canevas.selectAll(".mono").data(dataSeuil).transition()
+                .duration(200)
+                .attr("x", (d, i) => 5+ (i * (width/7)))
                 .attr("y", height + largeurCellule + 10);
             //fin de la fonction graphe
         }
 
-        liste(15);
-
-        d3.select("#topcinquante")
-            .on("click",liste(50));
+        liste(30);
+        d3.select("#top15").on("click", function(){liste(5)});
+        d3.select("#top30").on("click", function(){liste(6)});
+        d3.select("#top50").on("click", function(){liste(7)});
 
         /*
         function graphe2() {
