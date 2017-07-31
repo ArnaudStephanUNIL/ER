@@ -60,7 +60,8 @@ d3.csv("liens.csv", function(d) {
         }
 
         //On initialise les axes
-        let domain = selectMots(10);
+        let compteur = 25;
+        let domain = selectMots(compteur);
 
         let echelleX = d3.scaleBand()
             .domain(domain)
@@ -92,6 +93,13 @@ d3.csv("liens.csv", function(d) {
                 .selectAll('text')
                 .attr('font-weight', 'normal');
 
+        //On met le petit texte
+            canevas.append("g")
+                .attr("class", "infoCompteur")
+                .attr("transform", "translate(-80, -80)")
+                .append("text")
+                .attr("id", "texte");
+
         //Fonction pour updater les axes
         function updateAxis(newDomain){
 
@@ -113,19 +121,19 @@ d3.csv("liens.csv", function(d) {
         }
 
         function graphe(seuil){
+            compteur = seuil;
             //En lançant selectMots, on chope d'un coup le subset dont on a besoin et les mots associés
             selectMots(seuil);
             //On update les axes
             updateAxis(motsUniques);
-            console.log(data)
-            console.log(motsUniques);
-
+            console.log(compteur);
             //Création du tableau de quantites
             let quantites = data.map(d => d.poids);
             //On trie les quantités pour que les quantiles fonctionnent, sinon ça fait n'importe quoi
             quantites = quantites.sort();
 
             //Calcul des quantiles, pour l'échelle de couleurs
+
             let q1 = d3.quantile(quantites, 0.15);
             let q2 = d3.quantile(quantites, 0.30);
             let q3 = d3.quantile(quantites, 0.45);
@@ -144,29 +152,34 @@ d3.csv("liens.csv", function(d) {
                 .attr("class", "tooltip")
                 .style("opacity", 0);
 
-            var g = canevas.append("g");
-            var cells1 = g.selectAll(".cell1").data(data);
-            var cells2 = g.selectAll(".cell2").data(data);
+            //Mise à jour du texte
+            d3.select("#texte")
+                .text("Top "+compteur+" des occurrences")
 
-            cells1.enter()
+            var g = canevas.append("g");
+
+            g.selectAll(".cell1").data(data).enter()
                 .append("rect")
                 .attr("class", "cell1")
-                .attr("width", largeurCellule)
-                .attr("height", largeurCellule)
+                .attr("width", 0)
+                .attr("height", 0)
                 .attr("y", d => echelleY(d.mot2))
                 .attr("x", d => echelleX(d.mot1))
                 .attr("fill", d => echelleCouleur(d.poids));
 
-            cells2.enter()
+            g.selectAll(".cell2").data(data).enter()
                 .append("rect")
                 .attr("class", "cell2")
-                .attr("width", largeurCellule)
-                .attr("height", largeurCellule)
+                .attr("width", 0)
+                .attr("height", 0)
                 .attr("y", d => echelleY(d.mot1))
                 .attr("x", d => echelleX(d.mot2))
                 .attr("fill", d => echelleCouleur(d.poids));
 
-            canevas.selectAll(".cell1").data(data).transition()
+            var cells1 = canevas.selectAll(".cell1").data(data);
+            var cells2 = canevas.selectAll(".cell2").data(data);
+
+            cells1.transition()
                 .duration(2000)
                 .attr("width", largeurCellule)
                 .attr("height", largeurCellule)
@@ -174,7 +187,7 @@ d3.csv("liens.csv", function(d) {
                 .attr("x", d => echelleX(d.mot1))
                 .attr("fill", d => echelleCouleur(d.poids));
 
-            canevas.selectAll(".cell2").data(data).transition()
+            cells2.transition()
                 .duration(2000)
                 .attr("width", largeurCellule)
                 .attr("height", largeurCellule)
@@ -182,12 +195,22 @@ d3.csv("liens.csv", function(d) {
                 .attr("x", d => echelleX(d.mot2))
                 .attr("fill", d => echelleCouleur(d.poids));
 
-            canevas.selectAll(".cell1").data(data).exit().remove();
-            canevas.selectAll(".cell2").data(data).exit().remove();
+            cells1.exit()
+                .attr("width", 0)
+                .attr("height", 0)
+                .attr("y", d => echelleY(d.mot2))
+                .attr("x", d => echelleX(d.mot1))
+                .attr("fill", d => echelleCouleur(d.poids));
+
+            cells2.exit()
+                .attr("width", 0)
+                .attr("height", 0)
+                .attr("y", d => echelleY(d.mot1))
+                .attr("x", d => echelleX(d.mot2))
+                .attr("fill", d => echelleCouleur(d.poids));
 
             //Tooltip
-            canevas.selectAll(".cell1").data(data)
-                .on("mouseover", function(d) {
+            cells1.on("mouseover", function(d) {
                     div.transition()
                         .duration(200)
                         .style("opacity", .9);
@@ -201,8 +224,7 @@ d3.csv("liens.csv", function(d) {
                         .style("opacity", 0);
                 });
 
-            canevas.selectAll(".cell2").data(data)
-                .on("mouseover", function(d) {
+            cells2.on("mouseover", function(d) {
                     div.transition()
                         .duration(200)
                         .style("opacity", .9);
@@ -255,11 +277,38 @@ d3.csv("liens.csv", function(d) {
 
         }
 
-        graphe(10);
-        d3.select("#top10").on("click", function(){graphe(10)});
-        d3.select("#top25").on("click", function(){graphe(25)});
+        function plus5(){
+            compteur += 5;
+            graphe(compteur);
+        }
+
+        function plus10(){
+            compteur += 10;
+            graphe(compteur);
+        }
+
+        function moins5(){
+            if (compteur > 15) {
+                compteur -= 5;
+                graphe(compteur);
+            }
+            else{};
+        }
+
+        function moins10(){
+            if(compteur > 20) {
+                compteur -= 10;
+                graphe(compteur);
+        }
+            else{};
+        }
+
+        graphe(compteur);
+        d3.select("#moins10").on("click", function(){moins10()});
+        d3.select("#moins5").on("click", function(){moins5()});
+        d3.select("#plus5").on("click", function(){plus5()});
+        d3.select("#plus10").on("click", function(){plus10()});
         d3.select("#top50").on("click", function(){graphe(50)});
-        d3.select("#top100").on("click", function(){graphe(100)});
 
 
 

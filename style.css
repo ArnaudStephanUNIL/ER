@@ -32,6 +32,11 @@
 	        /*fill: #aaa;*/
 		}
 
+		g.infoCompteur{
+			font-size: 7pt;
+	        font-family: Consolas, courier;
+		}
+
 		.axeX{
 			font-size: 7pt;
 			font-family: Consolas, courier;
