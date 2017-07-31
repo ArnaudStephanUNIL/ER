@@ -24,7 +24,7 @@ d3.csv("liens.csv", function(d) {
         });
 
         //Création du set de tous les mots
-        let setMotsFull = new Set();
+        /*let setMotsFull = new Set();
         data.forEach(function(d) {
             setMotsFull.add(d.mot1)
             setMotsFull.add(d.mot2)
@@ -34,15 +34,16 @@ d3.csv("liens.csv", function(d) {
         let listeMotsFull = Array.from(setMotsFull);
 
         //On classe par ordre alphabétique (localeCompare est utile pour les accents)
-        listeMotsFull.sort((a, b) => a.localeCompare(b));
+        listeMotsFull.sort((a, b) => a.localeCompare(b));*/
 
 
         var width2 = window.innerWidth - marges.left - marges.right;
         var height2 = window.innerHeight - marges.top - marges.bottom;
 
+        //Création du canevas, qui a une largeur de 100
         var canevas = d3.select("body").append("svg")
-            .attr("width", largeurCellule*50 + marges.left + marges.right)
-            .attr("height", largeurCellule*50 + marges.top + marges.bottom)
+            .attr("width", largeurCellule*100 + marges.left + marges.right)
+            .attr("height", largeurCellule*100 + marges.top + marges.bottom)
             .append("g")
             .attr("transform", "translate(" + marges.left + "," + marges.top + ")");
 
@@ -58,6 +59,7 @@ d3.csv("liens.csv", function(d) {
         let dataSeuil = [];
         //Fonction qui ne prend qu'une partie du dataset, et qui le dessine
         function liste(seuil){
+            console.log(seuil);
             //On vide le tableau avant de recommencer, histoire que les vieilles valeurs ne restent pas en mémoire
             dataSeuil.splice(0);
             //Et on le remplit avec les valeurs jusqu'au nouveau seuil
@@ -70,21 +72,26 @@ d3.csv("liens.csv", function(d) {
 
         //Fonction pour dessiner la matrice des occurrences les plus fréquentes (en fonction du seuil)
         function graphe(dataSeuil) {
-
             //Création du set des mots dont on a besoin
-            let setMots = new Set();
+            var setMots = new Set();
             dataSeuil.forEach(function(d) {
                 setMots.add(d.mot1)
                 setMots.add(d.mot2)
             });
+            console.log(setMots);
+
 
             //Création de la liste des mots inclus dans la sous base de données
-            let listeMots = Array.from(setMots);
+            var listeMots = Array.from(setMots);
+            /*Note pour le futur Arnaud : C'est normal s'il n'y a pas autant de mots que le seuil. Si on
+            met le seuil à 20 il n'y a que 16 mots, parce qu'avec 16 mots on fait les 20 paires les plus
+            fréquentes. Le problème ne vient pas de là.
+            */
+            console.log(listeMots);
 
             //On classe par ordre
             listeMots.sort((a, b) => a.localeCompare(b));
 
-            //Création du canevas
             var width = listeMots.length * (largeurCellule);
             var height = listeMots.length * (largeurCellule);
 
@@ -162,7 +169,7 @@ d3.csv("liens.csv", function(d) {
 
             //Celles qui se déplacent
             canevas.selectAll(".cell").data(dataSeuil).transition()
-                .duration(200)
+                .duration(2000)
                 .attr("width", largeurCellule)
                 .attr("height", largeurCellule)
                 .attr("y", d => echelleY(d.mot2))
@@ -201,7 +208,7 @@ d3.csv("liens.csv", function(d) {
 
             //Celles qui se déplacent
             canevas.selectAll(".cell2").data(dataSeuil).transition()
-                .duration(200)
+                .duration(2000)
                 .attr("width", largeurCellule)
                 .attr("height", largeurCellule)
                 .attr("y", d => echelleY(d.mot1))
@@ -243,7 +250,7 @@ d3.csv("liens.csv", function(d) {
                 .attr("fill", ((d, i) => couleurs[i]));
 
             canevas.selectAll(".legende").data(dataSeuil).transition()
-                .duration(200)
+                .duration(2000)
                 .attr("width", width/7)
                 .attr("x", (d, i) => i * (width/7))
                 .attr("y", height + 10)
@@ -257,17 +264,16 @@ d3.csv("liens.csv", function(d) {
                 .attr("y", height + largeurCellule + 10);
 
             canevas.selectAll(".mono").data(dataSeuil).transition()
-                .duration(200)
+                .duration(2000)
                 .attr("x", (d, i) => 5+ (i * (width/7)))
                 .attr("y", height + largeurCellule + 10);
             //fin de la fonction graphe
         }
 
-        liste(30);
-        d3.select("#top15").on("click", function(){liste(5)});
-        d3.select("#top30").on("click", function(){liste(6)});
-        d3.select("#top50").on("click", function(){liste(7)});
-
+        liste(25);
+        d3.select("#top15").on("click", function(){liste(10)});
+        d3.select("#top30").on("click", function(){liste(20)});
+        d3.select("#top50").on("click", function(){liste(100)});
         /*
         function graphe2() {
 
