@@ -15,6 +15,7 @@ d3.csv("liens.csv", function(d) {
         let data = [];
         let motsUniques = [];
         let largeurCellule = 20;
+        let transitionTime = 1000;
         let compteur = 25;
 
         let marges = {
@@ -104,7 +105,7 @@ d3.csv("liens.csv", function(d) {
 
             echelleX.domain(newDomain).range([0 , newDomain.length * largeurCellule])
             canevas.select(".axeX")
-                .transition().duration(2000)
+                .transition().duration(transitionTime)
                 .call(axeX)
                 .selectAll('text')
                 .attr('font-weight', 'normal')
@@ -115,7 +116,7 @@ d3.csv("liens.csv", function(d) {
 
             echelleY.domain(newDomain).range([0 , newDomain.length * largeurCellule])
             canevas.select(".axeY")
-                .transition().duration(2000)
+                .transition().duration(transitionTime)
                 .call(axeY)
         }
 
@@ -179,7 +180,7 @@ d3.csv("liens.csv", function(d) {
             var cells2 = canevas.selectAll(".cell2").data(data);
 
             cells1.transition()
-                .duration(2000)
+                .duration(transitionTime)
                 .attr("width", largeurCellule)
                 .attr("height", largeurCellule)
                 .attr("y", d => echelleY(d.mot2))
@@ -187,7 +188,7 @@ d3.csv("liens.csv", function(d) {
                 .attr("fill", d => echelleCouleur(d.poids));
 
             cells2.transition()
-                .duration(2000)
+                .duration(transitionTime)
                 .attr("width", largeurCellule)
                 .attr("height", largeurCellule)
                 .attr("y", d => echelleY(d.mot1))
@@ -256,7 +257,7 @@ d3.csv("liens.csv", function(d) {
                 .attr("fill", ((d, i) => couleurs[i]));
 
             canevas.selectAll(".legende").data(data).transition()
-                .duration(2000)
+                .duration(transitionTime)
                 .attr("width", cellPosX/7)
                 .attr("x", (d, i) => i * (cellPosY/7))
                 .attr("y", cellPosY + 10)
@@ -270,7 +271,7 @@ d3.csv("liens.csv", function(d) {
                 .attr("y", cellPosY + largeurCellule + 10);
 
             canevas.selectAll(".mono").data(data).transition()
-                .duration(2000)
+                .duration(transitionTime)
                 .attr("x", (d, i) => 5+ (i * (cellPosX/7)))
                 .attr("y", cellPosY + largeurCellule + 10);
 
