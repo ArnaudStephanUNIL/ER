@@ -13,9 +13,9 @@ d3.csv("liens.csv", function(d) {
 
         //Initialisation du tableau de données et de mots qu'on va utiliser
         let data = [];
-        let motsUniquesInit = [];
         let motsUniques = [];
         let largeurCellule = 20;
+        let compteur = 25;
 
         let marges = {
             top: 100,
@@ -60,7 +60,6 @@ d3.csv("liens.csv", function(d) {
         }
 
         //On initialise les axes
-        let compteur = 25;
         let domain = selectMots(compteur);
 
         let echelleX = d3.scaleBand()
