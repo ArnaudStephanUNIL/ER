@@ -54,6 +54,11 @@ write.table(e, file='liens.csv', quote = FALSE, sep=',', col.names = TRUE,
 write.table(freq, file='freq.csv', quote = FALSE, sep=',', col.names = TRUE,
             row.names = FALSE)
 
+#Matrice du top 100
+e100 <- e[order(-e$Poids),]
+e100 <- head(e100,10)
+View(e100)
+
 #Réseau entre les mots clefs
 source <- e100$Mot1
 cible <- e100$Mot2
