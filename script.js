@@ -52,6 +52,7 @@ d3.csv("liens.csv", function(d) {
             setMotsUniques.add(d.mot1)
             setMotsUniques.add(d.mot2)
         });
+
         //Et on en fait un tableau
         motsUniques = Array.from(setMotsUniques);
         //Que l'on classe par ordre alphabétique
@@ -315,7 +316,7 @@ d3.csv("liens.csv", function(d) {
         plus10()
     });
     d3.select("#top50").on("click", function() {
-        graphe(50)
+        heatmap(50)
     });
 
     //Fin de tout ce qui concerne la heatmap des cooccurrences
@@ -331,7 +332,7 @@ d3.csv("liens.csv", function(d) {
     //Initialisation des tableaux des noeuds et des liens
 //    let nodes = [];
  //   let links = [];
-    let tableauReseau = [];
+    let tableauxReseau = [];
     let newData = [];
 
 
@@ -341,11 +342,9 @@ d3.csv("liens.csv", function(d) {
         //On chope les mots uniques et le subsest de données (motsUniques et data)
         selectMots(seuil);
         //On vide les tableaux avant de les remplir de nouveau
-        nodes.slice(0);
-        links.slice(0);
-
+        tableauxReseau.slice(0);
         //On passe à travers chaque ligne de data
-        tableaux.links = data.map((item) => {
+        tableauxReseau.links = data.map((item) => {
             return {
                 //Pour chaque ligne de data, links.source = l'index du mot1 de data qui correspond
                 //à son équivalent dans motsUniques
@@ -357,22 +356,23 @@ d3.csv("liens.csv", function(d) {
             };
         });
 
-        tableaux.nodes = motsUniques.map((item) => {
+        tableauxReseau.nodes = motsUniques.map((item) => {
             return {
                 //Pour chaque ligne de motsUniques, nodes.id = la ligne sur laquelle on est
                 id: item
             };
         });
-        console.log(tableaux);
+        return tableauxReseau;
     }
 
     function reseau(seuil) {
 
-        creationTableaux(seuil);
+        newData = creationTableaux(seuil);
+        console.log(newData);
 
     }
 
-    reseau(20);
+    reseau(50);
 
 
 
