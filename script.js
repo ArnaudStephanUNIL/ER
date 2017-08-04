@@ -16,7 +16,11 @@ d3.csv("liens.csv", function(d) {
     let motsUniques = [];
     let largeurCellule = 20;
     let transitionTime = 500;
+    let width = largeurCellule * 30;
+    let height = largeurCellule * 30;
     let compteur = 20;
+    let couleurs = ["#ffffb2", "#fed976", "#feb24c", "#fd8d3c", "#fc4e2a", "#e31a1c", "#b10026"];
+    let legende = ["0-15", "15-30", "30-45", "45-60", "60-75", "75-90", "90-100"];
 
     let marges = {
         top: 100,
@@ -28,8 +32,8 @@ d3.csv("liens.csv", function(d) {
     //Initialisation du canevas
     let canevas = d3.select("body").append("svg")
         .attr("class", "svg")
-        .attr("width", largeurCellule * 30 + marges.left + marges.right)
-        .attr("height", largeurCellule * 30 + marges.left + marges.right)
+        .attr("width", width + marges.left + marges.right)
+        .attr("height", height + marges.left + marges.right)
         .append("g")
         .attr("transform", "translate(" + marges.left + "," + marges.top + ")");
 
@@ -121,20 +125,59 @@ d3.csv("liens.csv", function(d) {
             .call(axeY)
     }
 
+    function updateLegende(mots) {
+
+        //Ajout de la légende
+        var cellPosX = (mots.length * largeurCellule);
+        var cellPosY = cellPosX;
+
+        canevas.append("g").selectAll(".legende").data(legende).enter()
+            .append("rect")
+            .attr("class", "legende")
+            .attr("width", cellPosX / 7)
+            .attr("height", largeurCellule / 2)
+            .attr("x", (d, i) => i * (cellPosX / 7))
+            .attr("y", cellPosY + 10)
+            .attr("fill", ((d, i) => couleurs[i]));
+
+        canevas.append("g").selectAll(".mono").data(legende).enter()
+            .append("text")
+            .attr("class", "mono")
+            .text((d, i) => d + "%")
+            .attr("x", (d, i) => 5 + (i * (cellPosX / 7)))
+            .attr("y", cellPosY + largeurCellule + 10);
+
+        canevas.selectAll(".legende").data(legende).transition()
+            .duration(transitionTime)
+            .attr("width", cellPosX / 7)
+            .attr("x", (d, i) => i * (cellPosY / 7))
+            .attr("y", cellPosY + 10)
+            .attr("fill", ((d, i) => couleurs[i]));
+
+        canevas.selectAll(".legende").data(legende).exit().remove();
+
+        canevas.selectAll(".mono").data(legende).transition()
+            .duration(transitionTime)
+            .text((d, i) => d + "%")
+            .attr("x", (d, i) => 5 + (i * (cellPosX / 7)))
+            .attr("y", cellPosY + largeurCellule + 10);
+
+        canevas.selectAll(".mono").data(legende).exit().remove();
+    }
+
     function heatmap(seuil) {
 
         compteur = seuil;
         //En lançant selectMots, on chope d'un coup le subset dont on a besoin et les mots associés
         selectMots(seuil);
-        //On update les axes
+        //On update les axes et la légende
         updateAxis(motsUniques);
+        updateLegende(motsUniques);
         //Création du tableau de quantites
         let quantites = data.map(d => d.poids);
         //On trie les quantités pour que les quantiles fonctionnent, sinon ça fait n'importe quoi
         quantites = quantites.sort();
-
         //Calcul des quantiles, pour l'échelle de couleurs
-
         let q1 = d3.quantile(quantites, 0.15);
         let q2 = d3.quantile(quantites, 0.30);
         let q3 = d3.quantile(quantites, 0.45);
@@ -143,7 +186,6 @@ d3.csv("liens.csv", function(d) {
         let q6 = d3.quantile(quantites, 0.90);
 
         //Echelle des couleurs en fonction des quantiles
-        var couleurs = ["#ffffb2", "#fed976", "#feb24c", "#fd8d3c", "#fc4e2a", "#e31a1c", "#b10026"];
         var echelleCouleur = d3.scaleThreshold()
             .domain([q1, q2, q3, q4, q5, q6])
             .range(couleurs);
@@ -164,8 +206,8 @@ d3.csv("liens.csv", function(d) {
             .attr("class", "cell1")
             .attr("width", 0)
             .attr("height", 0)
-            .attr("rx",4)
-            .attr("ry",4)
+            .attr("rx", 4)
+            .attr("ry", 4)
             .attr("y", d => echelleY(d.mot2))
             .attr("x", d => echelleX(d.mot1))
             .attr("fill", d => echelleCouleur(d.poids));
@@ -175,8 +217,8 @@ d3.csv("liens.csv", function(d) {
             .attr("class", "cell2")
             .attr("width", 0)
             .attr("height", 0)
-            .attr("rx",4)
-            .attr("ry",4)
+            .attr("rx", 4)
+            .attr("ry", 4)
             .attr("y", d => echelleY(d.mot1))
             .attr("x", d => echelleX(d.mot2))
             .attr("fill", d => echelleCouleur(d.poids));
@@ -188,8 +230,8 @@ d3.csv("liens.csv", function(d) {
             .duration(transitionTime)
             .attr("width", largeurCellule)
             .attr("height", largeurCellule)
-            .attr("rx",4)
-            .attr("ry",4)
+            .attr("rx", 4)
+            .attr("ry", 4)
             .attr("y", d => echelleY(d.mot2))
             .attr("x", d => echelleX(d.mot1))
             .attr("fill", d => echelleCouleur(d.poids));
@@ -198,8 +240,8 @@ d3.csv("liens.csv", function(d) {
             .duration(transitionTime)
             .attr("width", largeurCellule)
             .attr("height", largeurCellule)
-            .attr("rx",4)
-            .attr("ry",4)
+            .attr("rx", 4)
+            .attr("ry", 4)
             .attr("y", d => echelleY(d.mot1))
             .attr("x", d => echelleX(d.mot2))
             .attr("fill", d => echelleCouleur(d.poids));
@@ -207,8 +249,8 @@ d3.csv("liens.csv", function(d) {
         cells1.exit()
             .attr("width", 0)
             .attr("height", 0)
-            .attr("rx",4)
-            .attr("ry",4)
+            .attr("rx", 4)
+            .attr("ry", 4)
             .attr("y", d => echelleY(d.mot2))
             .attr("x", d => echelleX(d.mot1))
             .attr("fill", d => echelleCouleur(d.poids));
@@ -216,8 +258,8 @@ d3.csv("liens.csv", function(d) {
         cells2.exit()
             .attr("width", 0)
             .attr("height", 0)
-            .attr("rx",4)
-            .attr("ry",4)
+            .attr("rx", 4)
+            .attr("ry", 4)
             .attr("y", d => echelleY(d.mot1))
             .attr("x", d => echelleX(d.mot2))
             .attr("fill", d => echelleCouleur(d.poids));
@@ -250,49 +292,6 @@ d3.csv("liens.csv", function(d) {
                     .duration(500)
                     .style("opacity", 0);
             });
-
-
-        //Ajout de la légende
-        var legende = ["0-15", "15-30", "30-45", "45-60", "60-75", "75-90", "90-100"];
-
-        var legendeCell = canevas.selectAll(".legende").data(legende);
-        var legendeText = canevas.selectAll(".mono").data(legende);
-        var cellPosX = (motsUniques.length * largeurCellule);
-        var cellPosY = cellPosX;
-
-        g.selectAll(".legende").data(legende).enter()
-            .append("rect")
-            .attr("class", "legende")
-            .attr("width", cellPosX / 7)
-            .attr("height", largeurCellule / 2)
-            .attr("x", (d, i) => i * (cellPosX / 7))
-            .attr("y", cellPosY + 10)
-            .attr("fill", ((d, i) => couleurs[i]));
-
-        legendeCell.transition()
-            .duration(transitionTime)
-            .attr("width", cellPosX / 7)
-            .attr("x", (d, i) => i * (cellPosY / 7))
-            .attr("y", cellPosY + 10)
-            .attr("fill", ((d, i) => couleurs[i]));
-
-        legendeCell.exit().remove();
-
-        g.selectAll(".mono").data(legende).enter()
-            .append("text")
-            .attr("class", "mono")
-            .text((d, i) => d + "%")
-            .attr("x", (d, i) => 5 + (i * (cellPosX / 7)))
-            .attr("y", cellPosY + largeurCellule + 10);
-
-        legendeText.transition()
-            .duration(transitionTime)
-            .text("")
-            .attr("x", (d, i) => 5 + (i * (cellPosX / 7)))
-            .attr("y", cellPosY + largeurCellule + 10);
-
-        legendeText.exit().remove();
-
     }
 
     function plus5() {
@@ -320,6 +319,7 @@ d3.csv("liens.csv", function(d) {
     }
 
     heatmap(compteur);
+
     d3.select("#moins10").on("click", function() {
         moins10()
     });
@@ -347,27 +347,20 @@ d3.csv("liens.csv", function(d) {
         .attr("transform", "translate(" + marges.left + "," + marges.top + ")");
 
     //Initialisation des tableaux des noeuds et des liens
-//    let nodes = [];
- //   let links = [];
-    let tableauxReseau = [];
-    let newData = [];
-
 
     //Fonction qui remplit nodes et links bien comme il faut
     function creationTableaux(seuil) {
-
+        var tableauxReseau = [];
         //On chope les mots uniques et le subsest de données (motsUniques et data)
         selectMots(seuil);
-        //On vide les tableaux avant de les remplir de nouveau
-        tableauxReseau.splice(0);
         //On passe à travers chaque ligne de data
         tableauxReseau.links = data.map((item) => {
             return {
                 //Pour chaque ligne de data, links.source = l'index du mot1 de data qui correspond
                 //à son équivalent dans motsUniques
-                source: motsUniques.indexOf(item.mot1),
+                source: item.mot1,
                 //Pareil pour links.target
-                target: motsUniques.indexOf(item.mot2),
+                target: item.mot2,
                 value: item.poids
             };
         });
@@ -382,13 +375,104 @@ d3.csv("liens.csv", function(d) {
 
     function reseau(seuil) {
 
-        newData = creationTableaux(seuil);
-        console.log(newData);
+        var dataNetwork = creationTableaux(seuil);
+        console.log(dataNetwork);
+
+        var simulation = d3.forceSimulation()
+            .force("link", d3.forceLink().id(d => d.id))
+            .force("charge", d3.forceManyBody().strength(-250))
+            .force("center", d3.forceCenter(width / 2, height / 2));
+
+        var link = canevas2.append("g")
+            .attr("class", "links")
+            .selectAll("line")
+            .data(dataNetwork.links)
+            .enter()
+            .append("line")
+            .attr("stroke", "lightblue")
+            .attr("stroke-width", d => 6 * d.value);
+
+        var node = canevas2.append("g")
+            .attr("class", "nodes")
+            .selectAll("circle")
+            .data(dataNetwork.nodes)
+            .enter()
+            .append("circle")
+            .attr("r", 5)
+            .attr("fill", "lightblue")
+            .call(d3.drag()
+                .on("start", dragstarted)
+                .on("drag", dragged)
+                .on("end", dragended));
+
+        var label = canevas2.selectAll(".labelnoeuds")
+            .data(dataNetwork.nodes)
+            .enter()
+            .append("text")
+            .text(d => d.id)
+            .style("text-anchor", "middle")
+            .style("fill", "#555")
+            .style("font-family", "Consolas, courier")
+            .style("font-size", 9);
+
+        simulation.nodes(dataNetwork.nodes).on("tick", ticked);
+
+        simulation.force("link").links(dataNetwork.links);
+
+        function ticked() {
+            link
+                .attr("x1", function(d) {
+                    return d.source.x;
+                })
+                .attr("y1", function(d) {
+                    return d.source.y;
+                })
+                .attr("x2", function(d) {
+                    return d.target.x;
+                })
+                .attr("y2", function(d) {
+                    return d.target.y;
+                });
+
+            node
+                .attr("cx", function(d) {
+                    return d.x;
+                })
+                .attr("cy", function(d) {
+                    return d.y;
+                });
+
+            label
+                .attr("x", function(d) {
+                    return d.x + 5;
+                })
+                .attr("y", function(d) {
+                    return d.y - 10;
+                });
+
+        }
+
+        function dragstarted(d) {
+            if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+            d.fx = d.x;
+            d.fy = d.y;
+        }
+
+        function dragged(d) {
+            d.fx = d3.event.x;
+            d.fy = d3.event.y;
+        }
+
+        function dragended(d) {
+            if (!d3.event.active) simulation.alphaTarget(0);
+            d.fx = null;
+            d.fy = null;
+        }
+
 
     }
 
-    reseau(50);
-
+    reseau(30);
 
 
 });
