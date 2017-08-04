@@ -15,8 +15,8 @@ d3.csv("liens.csv", function(d) {
     let data = [];
     let motsUniques = [];
     let largeurCellule = 20;
-    let transitionTime = 1000;
-    let compteur = 25;
+    let transitionTime = 500;
+    let compteur = 20;
 
     let marges = {
         top: 100,
@@ -164,6 +164,8 @@ d3.csv("liens.csv", function(d) {
             .attr("class", "cell1")
             .attr("width", 0)
             .attr("height", 0)
+            .attr("rx",4)
+            .attr("ry",4)
             .attr("y", d => echelleY(d.mot2))
             .attr("x", d => echelleX(d.mot1))
             .attr("fill", d => echelleCouleur(d.poids));
@@ -173,6 +175,8 @@ d3.csv("liens.csv", function(d) {
             .attr("class", "cell2")
             .attr("width", 0)
             .attr("height", 0)
+            .attr("rx",4)
+            .attr("ry",4)
             .attr("y", d => echelleY(d.mot1))
             .attr("x", d => echelleX(d.mot2))
             .attr("fill", d => echelleCouleur(d.poids));
@@ -184,6 +188,8 @@ d3.csv("liens.csv", function(d) {
             .duration(transitionTime)
             .attr("width", largeurCellule)
             .attr("height", largeurCellule)
+            .attr("rx",4)
+            .attr("ry",4)
             .attr("y", d => echelleY(d.mot2))
             .attr("x", d => echelleX(d.mot1))
             .attr("fill", d => echelleCouleur(d.poids));
@@ -192,6 +198,8 @@ d3.csv("liens.csv", function(d) {
             .duration(transitionTime)
             .attr("width", largeurCellule)
             .attr("height", largeurCellule)
+            .attr("rx",4)
+            .attr("ry",4)
             .attr("y", d => echelleY(d.mot1))
             .attr("x", d => echelleX(d.mot2))
             .attr("fill", d => echelleCouleur(d.poids));
@@ -199,6 +207,8 @@ d3.csv("liens.csv", function(d) {
         cells1.exit()
             .attr("width", 0)
             .attr("height", 0)
+            .attr("rx",4)
+            .attr("ry",4)
             .attr("y", d => echelleY(d.mot2))
             .attr("x", d => echelleX(d.mot1))
             .attr("fill", d => echelleCouleur(d.poids));
@@ -206,6 +216,8 @@ d3.csv("liens.csv", function(d) {
         cells2.exit()
             .attr("width", 0)
             .attr("height", 0)
+            .attr("rx",4)
+            .attr("ry",4)
             .attr("y", d => echelleY(d.mot1))
             .attr("x", d => echelleX(d.mot2))
             .attr("fill", d => echelleCouleur(d.poids));
@@ -244,11 +256,11 @@ d3.csv("liens.csv", function(d) {
         var legende = ["0-15", "15-30", "30-45", "45-60", "60-75", "75-90", "90-100"];
 
         var legendeCell = canevas.selectAll(".legende").data(legende);
+        var legendeText = canevas.selectAll(".mono").data(legende);
         var cellPosX = (motsUniques.length * largeurCellule);
         var cellPosY = cellPosX;
 
-        legendeCell.enter()
-            .append("g")
+        g.selectAll(".legende").data(legende).enter()
             .append("rect")
             .attr("class", "legende")
             .attr("width", cellPosX / 7)
@@ -257,24 +269,29 @@ d3.csv("liens.csv", function(d) {
             .attr("y", cellPosY + 10)
             .attr("fill", ((d, i) => couleurs[i]));
 
-        canevas.selectAll(".legende").data(data).transition()
+        legendeCell.transition()
             .duration(transitionTime)
             .attr("width", cellPosX / 7)
             .attr("x", (d, i) => i * (cellPosY / 7))
             .attr("y", cellPosY + 10)
             .attr("fill", ((d, i) => couleurs[i]));
 
-        legendeCell.enter()
+        legendeCell.exit().remove();
+
+        g.selectAll(".mono").data(legende).enter()
             .append("text")
             .attr("class", "mono")
             .text((d, i) => d + "%")
             .attr("x", (d, i) => 5 + (i * (cellPosX / 7)))
             .attr("y", cellPosY + largeurCellule + 10);
 
-        canevas.selectAll(".mono").data(data).transition()
+        legendeText.transition()
             .duration(transitionTime)
+            .text("")
             .attr("x", (d, i) => 5 + (i * (cellPosX / 7)))
             .attr("y", cellPosY + largeurCellule + 10);
+
+        legendeText.exit().remove();
 
     }
 
@@ -289,14 +306,14 @@ d3.csv("liens.csv", function(d) {
     }
 
     function moins5() {
-        if (compteur > 15) {
+        if (compteur >= 10) {
             compteur -= 5;
             heatmap(compteur);
         } else {};
     }
 
     function moins10() {
-        if (compteur > 20) {
+        if (compteur >= 15) {
             compteur -= 10;
             heatmap(compteur);
         } else {};
@@ -342,7 +359,7 @@ d3.csv("liens.csv", function(d) {
         //On chope les mots uniques et le subsest de données (motsUniques et data)
         selectMots(seuil);
         //On vide les tableaux avant de les remplir de nouveau
-        tableauxReseau.slice(0);
+        tableauxReseau.splice(0);
         //On passe à travers chaque ligne de data
         tableauxReseau.links = data.map((item) => {
             return {
@@ -352,10 +369,8 @@ d3.csv("liens.csv", function(d) {
                 //Pareil pour links.target
                 target: motsUniques.indexOf(item.mot2),
                 value: item.poids
-
             };
         });
-
         tableauxReseau.nodes = motsUniques.map((item) => {
             return {
                 //Pour chaque ligne de motsUniques, nodes.id = la ligne sur laquelle on est
