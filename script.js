@@ -1,4 +1,5 @@
-d3.csv("liens.csv", function(d) {
+d3.csv("liens_revue_presse.csv", function(d) {
+//d3.csv("liens_presse_er.csv", function(d) {
     return {
         mot1: d.Mot1,
         mot2: d.Mot2,
@@ -6,7 +7,7 @@ d3.csv("liens.csv", function(d) {
     };
 }, function(dataInit) {
 
-    //Avant toute chose, on trie la base de données
+    //Avant toute chose, on trie la base de données en fonction du poids des liens
     dataInit.sort(function(a, b) {
         return b["poids"] - a["poids"];
     });
@@ -107,7 +108,6 @@ d3.csv("liens.csv", function(d) {
 
     //Fonction pour updater les axes
     function updateAxis(newDomain) {
-
         echelleX.domain(newDomain).range([0, newDomain.length * largeurCellule])
         canevas.select(".axeX")
             .transition().duration(transitionTime)
@@ -125,8 +125,10 @@ d3.csv("liens.csv", function(d) {
             .call(axeY)
     }
 
+    //Pourquoi est-ce que ça foire pas si je mets ça dans une fonction et pas directement dans la fonction heatmap?
+    //Comme sur
+    //https://stackoverflow.com/questions/45507890/legend-transition-not-working-properly?noredirect=1#comment77982212_45507890
     function updateLegende(mots) {
-
         //Ajout de la légende
         var cellPosX = (mots.length * largeurCellule);
         var cellPosY = cellPosX;
@@ -166,7 +168,6 @@ d3.csv("liens.csv", function(d) {
     }
 
     function heatmap(seuil) {
-
         compteur = seuil;
         //En lançant selectMots, on chope d'un coup le subset dont on a besoin et les mots associés
         selectMots(seuil);
@@ -374,9 +375,7 @@ d3.csv("liens.csv", function(d) {
     }
 
     function reseau(seuil) {
-
         var dataNetwork = creationTableaux(seuil);
-        console.log(dataNetwork);
 
         var simulation = d3.forceSimulation()
             .force("link", d3.forceLink().id(d => d.id))
