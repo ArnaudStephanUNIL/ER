@@ -387,26 +387,26 @@ function selectFichier(fichier) {
                 .force("center", d3.forceCenter(width / 2, height / 2));
 
             var link = canevas2.append("g")
-                .attr("class", "links")
-                .selectAll("line")
-                .data(dataNetwork.links)
-                .enter()
-                .append("line")
-                .attr("stroke", "lightblue")
-                .attr("stroke-width", d => 6 * d.value);
+            .attr("class", "links")
+            .selectAll("line")
+            .data(dataNetwork.links)
+            .enter()
+            .append("line")
+            .attr("stroke", "lightblue")
+            .attr("stroke-width", d => 6 * d.value);
 
             var node = canevas2.append("g")
-                .attr("class", "nodes")
-                .selectAll("circle")
-                .data(dataNetwork.nodes)
-                .enter()
-                .append("circle")
-                .attr("r", 5)
-                .attr("fill", "lightblue")
-                .call(d3.drag()
-                    .on("start", dragstarted)
-                    .on("drag", dragged)
-                    .on("end", dragended));
+            .attr("class", "nodes")
+            .selectAll("circle")
+            .data(dataNetwork.nodes)
+            .enter()
+            .append("circle")
+            .attr("r", 5)
+            .attr("fill", "lightblue")
+            .call(d3.drag()
+                .on("start", dragstarted)
+                .on("drag", dragged)
+                .on("end", dragended));
 
             //Quand on passe la souris sur un noeud, lui et tous ses liens changent de couleur
             node.on("mouseover", function(d) {
