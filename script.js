@@ -1,5 +1,5 @@
 d3.csv("liens_revue_presse.csv", function(d) {
-//d3.csv("liens_presse_er.csv", function(d) {
+    //d3.csv("liens_presse_er.csv", function(d) {
     return {
         mot1: d.Mot1,
         mot2: d.Mot2,
@@ -247,23 +247,27 @@ d3.csv("liens_revue_presse.csv", function(d) {
             .attr("x", d => echelleX(d.mot2))
             .attr("fill", d => echelleCouleur(d.poids));
 
-        cells1.exit()
+        cells1.exit().transition()
+            .duration(transitionTime)
             .attr("width", 0)
             .attr("height", 0)
             .attr("rx", 4)
             .attr("ry", 4)
-            .attr("y", d => echelleY(d.mot2))
-            .attr("x", d => echelleX(d.mot1))
-            .attr("fill", d => echelleCouleur(d.poids));
+            .attr("y", 0)
+            .attr("x", 0)
+            .attr("fill", d => echelleCouleur(d.poids))
+            .remove();
 
-        cells2.exit()
+        cells2.exit().transition()
+            .duration(transitionTime)
             .attr("width", 0)
             .attr("height", 0)
             .attr("rx", 4)
             .attr("ry", 4)
-            .attr("y", d => echelleY(d.mot1))
-            .attr("x", d => echelleX(d.mot2))
-            .attr("fill", d => echelleCouleur(d.poids));
+            .attr("y", 0)
+            .attr("x", 0)
+            .attr("fill", d => echelleCouleur(d.poids))
+            .remove();
 
         //Tooltip
         cells1.on("mouseover", function(d) {
@@ -334,7 +338,7 @@ d3.csv("liens_revue_presse.csv", function(d) {
         plus10()
     });
     d3.select("#top50").on("click", function() {
-        heatmap(50)
+        heatmap(50);
     });
 
     //Fin de tout ce qui concerne la heatmap des cooccurrences
@@ -404,6 +408,22 @@ d3.csv("liens_revue_presse.csv", function(d) {
                 .on("drag", dragged)
                 .on("end", dragended));
 
+        //Quand on passe la souris sur un noeud, lui et tous ses liens changent de couleur
+        node.on("mouseover", function(d) {
+            d3.select(this).style("fill", "#ff8080");
+            link.style("stroke", function(l) {
+                if (d === l.source || d === l.target)
+                    return "#ff8080";
+                else
+                    return "lightblue";
+            });
+        });
+        //Quand la souris repart, on revient à la couleur originale
+        node.on("mouseout", function() {
+            node.style("fill", "lightblue");
+            link.style("stroke", "lightblue");
+        });
+
         var label = canevas2.selectAll(".labelnoeuds")
             .data(dataNetwork.nodes)
             .enter()
@@ -471,7 +491,7 @@ d3.csv("liens_revue_presse.csv", function(d) {
 
     }
 
-    reseau(30);
+    reseau(50);
 
 
 });
