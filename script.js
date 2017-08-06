@@ -361,8 +361,7 @@ function selectFichier(fichier) {
             //On passe à travers chaque ligne de data
             tableauxReseau.links = data.map((item) => {
                 return {
-                    //Pour chaque ligne de data, links.source = l'index du mot1 de data qui correspond
-                    //à son équivalent dans motsUniques
+                    //Pour chaque ligne de data, links.source = le mot1 de data
                     source: item.mot1,
                     //Pareil pour links.target
                     target: item.mot2,
@@ -380,10 +379,11 @@ function selectFichier(fichier) {
 
         function reseau(seuil) {
             var dataNetwork = creationTableaux(seuil);
+            console.log(dataNetwork);
 
             var simulation = d3.forceSimulation()
                 .force("link", d3.forceLink().id(d => d.id))
-                .force("charge", d3.forceManyBody().strength(-250))
+                .force("charge", d3.forceManyBody().strength(-200))
                 .force("center", d3.forceCenter(width / 2, height / 2));
 
             var link = canevas2.append("g")
@@ -403,6 +403,7 @@ function selectFichier(fichier) {
             .append("circle")
             .attr("r", 5)
             .attr("fill", "lightblue")
+            .attr("stroke", "grey")
             .call(d3.drag()
                 .on("start", dragstarted)
                 .on("drag", dragged)
@@ -508,3 +509,5 @@ function DataSwitch() {
 d3.select("#DataSwitch").on("click", function() {
     DataSwitch();
 });
+
+selectFichier("liens_revue_presse.csv");
