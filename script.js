@@ -1,6 +1,7 @@
 let largeurCellule = 20;
 let width = largeurCellule * 30;
 let height = largeurCellule * 30;
+let compteur = 20;
 let marges = {
     top: 100,
     right: 100,
@@ -62,6 +63,13 @@ let canevas2 = d3.select("body").append("svg")
     .append("g")
     .attr("transform", "translate(" + marges.left + "," + marges.top + ")");
 
+//On met un petit texte aussi
+canevas2.append("g")
+	.attr("class", "infoCompteur")
+	.attr("transform","translate(-80, -80)")
+	.append("text")
+	.attr("id", "texte2");
+
 
 function selectFichier(fichier) {
     d3.csv(fichier, function(d) {
@@ -81,7 +89,6 @@ function selectFichier(fichier) {
         let data = [];
         let motsUniques = [];
         let transitionTime = 500;
-        let compteur = 20;
         let couleurs = ["#ffffb2", "#fed976", "#feb24c", "#fd8d3c", "#fc4e2a", "#e31a1c", "#b10026"];
         let legende = ["0-15", "15-30", "30-45", "45-60", "60-75", "75-90", "90-100"];
 
@@ -138,6 +145,7 @@ function selectFichier(fichier) {
         //Pourquoi est-ce que ça foire pas si je mets ça dans une fonction et pas directement dans la fonction heatmap?
         //Comme sur
         //https://stackoverflow.com/questions/45507890/legend-transition-not-working-properly?noredirect=1#comment77982212_45507890
+        //Mystère et boule de gomme
         function updateLegende(mots) {
             //Ajout de la légende
             var cellPosX = (mots.length * largeurCellule);
@@ -208,7 +216,7 @@ function selectFichier(fichier) {
 
             //Mise à jour du texte
             d3.select("#texte")
-                .text("Top " + compteur + " des co-occurrences de " + fichier )
+                .text("Top " + seuil + " des co-occurrences de " + fichier);
 
             var g = canevas.append("g");
 
@@ -312,17 +320,20 @@ function selectFichier(fichier) {
         function plus5() {
             compteur += 5;
             heatmap(compteur);
+            reseau(compteur);
         }
 
         function plus10() {
             compteur += 10;
             heatmap(compteur);
+            reseau(compteur);
         }
 
         function moins5() {
             if (compteur >= 10) {
                 compteur -= 5;
                 heatmap(compteur);
+                reseau(compteur);
             } else {};
         }
 
@@ -330,6 +341,7 @@ function selectFichier(fichier) {
             if (compteur >= 15) {
                 compteur -= 10;
                 heatmap(compteur);
+                reseau(compteur);
             } else {};
         }
 
@@ -349,6 +361,7 @@ function selectFichier(fichier) {
         });
         d3.select("#top50").on("click", function() {
             heatmap(50);
+            reseau(50);
         });
 
         //Fin de tout ce qui concerne la heatmap des cooccurrences
@@ -379,11 +392,19 @@ function selectFichier(fichier) {
 
         function reseau(seuil) {
             var dataNetwork = creationTableaux(seuil);
-            console.log(dataNetwork);
+
+            //Avant toute chose, on enlève tout ce qui pourrait rester des simulations précédentes
+            canevas2.selectAll(".links").remove();
+            canevas2.selectAll(".nodes").remove();
+            canevas2.selectAll(".labelnoeuds").remove();
+
+            //Mise à jour du texte
+            d3.select("#texte2")
+                .text("Top " + seuil + " des liens de " + fichier);
 
             var simulation = d3.forceSimulation()
                 .force("link", d3.forceLink().id(d => d.id))
-                .force("charge", d3.forceManyBody().strength(-200))
+                .force("charge", d3.forceManyBody().strength(-250))
                 .force("center", d3.forceCenter(width / 2, height / 2));
 
             var link = canevas2.append("g")
@@ -429,6 +450,7 @@ function selectFichier(fichier) {
                 .data(dataNetwork.nodes)
                 .enter()
                 .append("text")
+                .attr("class", "labelnoeuds")
                 .text(d => d.id)
                 .style("text-anchor", "middle")
                 .style("fill", "#555")
@@ -492,7 +514,7 @@ function selectFichier(fichier) {
 
         }
 
-        reseau(25);
+        reseau(compteur);
     });
 }
 
