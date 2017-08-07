@@ -15,7 +15,9 @@ La deuxième visualisation (il faut peut être un peu dézoomer la page pour pou
 
 J'aimerais bien faire un cluster dendogram (voir dans le dossier screenshots), j'ai réussi via R (il y a un package pour ça donc ça n'était pas très compliqué) mais je n'ai pas encore eu le temps de me pencher sur comment faire ça en D3.
 
-Il me semble qu'il serait maintenant intéressant de rajouter une autre dimension à ces visualisations, par exemple en prenant en compte la source des articles, ou bien le nombre de votes, etc. Concernant l'ajout de la dimension temporelle pour voir les évolutions de la base de données au fil du temps, je n'ai pour l'instant strictement aucune idée de comment faire. Donc à voir si ça ne prend pas trop de temps.
+Il me semble qu'il serait maintenant intéressant de rajouter une autre dimension à ces visualisations, par exemple en prenant en compte la source des articles, ou bien le nombre de votes, etc. Dans "script-beta.js" il y a le script pour un histogramme des fréquences les plus fréquentes, il serait par exemple assez simple de le modifier pour prendre en compte les sources de chaque mot-clef.
+
+Concernant l'ajout de la dimension temporelle pour voir les évolutions de la base de données au fil du temps, je n'ai pour l'instant strictement aucune idée de comment faire. Donc à voir si ça ne prend pas trop de temps.
 
 On pourrait également nettoyer un peu plus la base de données. Dans celle qui concerne la presse E&R par exemple, on voit que le lien entre "Humour" et "Zéon" est très fort, mais que ces deux mots ne sont liés à presque aucun autre. Dans la base de données de la revue de presse, "International" fait des liens avec tous les mots ou presque, il serait donc intéressant de voir si on ne pourrait pas l'enlever.
 
