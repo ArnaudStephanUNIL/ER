@@ -58,8 +58,8 @@ canevas.append("g")
 //Initialisation du deuxième canevas
 let canevas2 = d3.select("body").append("svg")
     .attr("class", "svg")
-    .attr("width", largeurCellule * 30 + marges.left + marges.right)
-    .attr("height", largeurCellule * 30 + marges.left + marges.right)
+    .attr("width", width + marges.left + marges.right)
+    .attr("height", height + marges.left + marges.right)
     .append("g")
     .attr("transform", "translate(" + marges.left + "," + marges.top + ")");
 
@@ -404,7 +404,7 @@ function selectFichier(fichier) {
 
             var simulation = d3.forceSimulation()
                 .force("link", d3.forceLink().id(d => d.id))
-                .force("charge", d3.forceManyBody().strength(-250))
+                .force("charge", d3.forceManyBody().strength(-180))
                 .force("center", d3.forceCenter(width / 2, height / 2));
 
             var link = canevas2.append("g")
@@ -432,10 +432,10 @@ function selectFichier(fichier) {
 
             //Quand on passe la souris sur un noeud, lui et tous ses liens changent de couleur
             node.on("mouseover", function(d) {
-                d3.select(this).style("fill", "#ff8080");
+                d3.select(this).style("fill", "#E6BBAD");
                 link.style("stroke", function(l) {
                     if (d === l.source || d === l.target)
-                        return "#ff8080";
+                        return "#E6BBAD";
                     else
                         return "lightblue";
                 });

@@ -16,8 +16,8 @@ library(networkD3)
 library(reshape2)
 options(digits=4)
 
-#freq <- read.csv('ER_Presse-format-ids-clean.csv', header = TRUE, sep = ",")$keywords %>%
-freq <- read.csv('ER_Revue_presse-format-ids-clean.csv', header = TRUE, sep = ",")$keywords %>%
+freq <- read.csv('ER_Presse-format-ids-clean.csv', header = TRUE, sep = ",")$keywords %>%
+#freq <- read.csv('ER_Revue_presse-format-ids-clean.csv', header = TRUE, sep = ",")$keywords %>%
 
 str_split(";") %>%
 unlist %>%
@@ -25,8 +25,8 @@ table %>%
 data.frame %>%
 arrange(-Freq)
 
-#e <- read.csv('ER_Presse-format-ids-clean.csv', header = TRUE, sep = ",")$keywords %>%
-e <- read.csv('ER_Revue_presse-format-ids-clean.csv', header = TRUE, sep = ",")$keywords %>%
+e <- read.csv('ER_Presse-format-ids-clean.csv', header = TRUE, sep = ",")$keywords %>%
+#e <- read.csv('ER_Revue_presse-format-ids-clean.csv', header = TRUE, sep = ",")$keywords %>%
   str_split(";") %>%
   lapply(function(x) {
     expand.grid(x, x, w = 1 / length(x), stringsAsFactors = FALSE)
@@ -48,15 +48,15 @@ names(freq) <- c("Mot","Frequence")
 #Poids relatifs
 e$Poids <- e$Poids/max(e$Poids)
 
-#write.table(e, file='liens_presse_er.csv', quote = FALSE, sep=',', col.names = TRUE,
- #           row.names = FALSE)
+write.table(e, file='liens_presse_er.csv', quote = FALSE, sep=',', col.names = TRUE,
+            row.names = FALSE)
 
-#write.table(freq, file='freq_presse_er.csv', quote = FALSE, sep=',', col.names = TRUE,
- #           row.names = FALSE)
+write.table(freq, file='freq_presse_er.csv', quote = FALSE, sep=',', col.names = TRUE,
+            row.names = FALSE)
 
 #Matrice du top 100
 e100 <- e[order(-e$Poids),]
-e100 <- head(e100,20)
+e100 <- head(e100,40)
 
 #Matrice clustering
 matriceCluster <- acast(e100, Mot1~Mot2, value.var="Poids")
@@ -66,3 +66,4 @@ plot(hclust(dist(abs(cor(na.omit(matriceCluster))))))
 
 write.table(matriceCluster, file='matrice.csv', quote = FALSE, sep=',', col.names = TRUE,
             row.names = TRUE)
+
