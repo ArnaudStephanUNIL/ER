@@ -28,8 +28,8 @@ let axeX = d3.axisTop(echelleX);
 canevas.append("g")
     .attr("class", "axeX")
     .call(axeX)
-    .selectAll('text')
-    .attr('font-weight', 'normal')
+    .selectAll("text")
+    .attr("font-weight", "normal")
     .style("text-anchor", "start")
     .attr("dx", ".8em")
     .attr("dy", ".5em")
@@ -45,8 +45,8 @@ let axeY = d3.axisLeft(echelleY);
 canevas.append("g")
     .attr("class", "axeY")
     .call(axeY)
-    .selectAll('text')
-    .attr('font-weight', 'normal');
+    .selectAll("text")
+    .attr("font-weight", "normal");
 
 //On met le petit texte
 canevas.append("g")

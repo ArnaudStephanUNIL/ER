@@ -62,6 +62,14 @@
   			stroke-width : 1px; 
 		}
 
+		.barre{
+			fill : #ffcc99;
+		}
+
+		.barre:hover{
+			fill:brown;
+		}
+
 
 		div.tooltip {
 		  position: absolute;
