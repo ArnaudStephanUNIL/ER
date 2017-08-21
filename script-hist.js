@@ -5,6 +5,7 @@ d3.csv("freq_presse_er.csv", function(d) {
 		};
 	}, function(data) {
 
+		let largeurBarre = 12;
 
 		var marges = {
 			top: 20,
@@ -22,9 +23,6 @@ d3.csv("freq_presse_er.csv", function(d) {
 			.attr("transform", "translate(" + marges.left + "," + marges.top + ")");
 
 		var max = d3.max(data, d => d.freq);
-
-		var largeurBarre = 15;
-		var gap = 1.5;
 
 		let echelleY = d3.scaleLinear()
 			.domain([0,max])
