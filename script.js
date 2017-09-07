@@ -413,7 +413,7 @@ function selectFichier(fichier) {
             .data(dataNetwork.links)
             .enter()
             .append("line")
-            .attr("stroke", "lightblue")
+            .attr("stroke", "#DCDCDC")
             .attr("stroke-width", d => 6 * d.value);
 
             var node = canevas2.append("g")
@@ -423,7 +423,7 @@ function selectFichier(fichier) {
             .enter()
             .append("circle")
             .attr("r", 5)
-            .attr("fill", "lightblue")
+            .attr("fill", "#ADBCE6")
             .attr("stroke", "grey")
             .call(d3.drag()
                 .on("start", dragstarted)
@@ -431,7 +431,7 @@ function selectFichier(fichier) {
                 .on("end", dragended));
 
             //Quand on passe la souris sur un noeud, lui et tous ses liens changent de couleur
-            node.on("mouseover", function(d) {
+            /*node.on("mouseover", function(d) {
                 d3.select(this).style("fill", "#E6BBAD");
                 link.style("stroke", function(l) {
                     if (d === l.source || d === l.target)
@@ -444,7 +444,7 @@ function selectFichier(fichier) {
             node.on("mouseout", function() {
                 node.style("fill", "lightblue");
                 link.style("stroke", "lightblue");
-            });
+            });*/
 
             var label = canevas2.selectAll(".labelnoeuds")
                 .data(dataNetwork.nodes)

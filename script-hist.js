@@ -38,7 +38,7 @@ d3.csv("freq_presse_er.csv", function(d) {
 		let setMots = d3.set(data.map(function(el){return el.mot;} )).values()
 
 		let echelleX = d3.scaleBand()
-		    .domain(setMots)
+		    .domain(data.map(d => d.mot))//setMots)
 		    .range([0, setMots.length * largeurBarre])
 		    .padding([.3]);
 
