@@ -6,7 +6,7 @@ install.packages('dplyr')
 install.packages('networkD3')
 install.packages('reshape2')
 
-setwd("/Users/astephan/Desktop/ER")
+setwd("/Users/astephan/Desktop/d3js/ER")
 library(tidyr)
 library(magrittr)
 library(stringr)
